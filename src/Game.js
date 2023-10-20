@@ -121,83 +121,39 @@ export default function Game() {
             airQualityText.setText('Air quality: ' + airQuality);
         }
 
-        // function plantTree(pointer) {
-        //     console.log('plantTree', pointer.button);
-        //     const x = pointer.x;
-        //     const y = pointer.y;
-        //     const seedsNeeded = 10;
-        //
-        //     if (seeds >= seedsNeeded && pointer.button === 0) {
-        //         const tree = this.add.image(x, y, 'tree');
-        //         tree.setInteractive();
-        //         tree.on('pointerdown', function(event) {
-        //             waterTree.call(tree, event); // send tree as context
-        //         });
-        //         tree.health = 100;
-        //         trees.push(tree);
-        //         seeds -= seedsNeeded;
-        //
-        //         for (let i = 0; i < seedsNeeded && seedSprites.length > 0; i++) {
-        //             const seedSprite = seedSprites.pop();
-        //             seedSprite.destroy();
-        //         }
-        //
-        //         const healthText = this.add.text(x, y - 20, tree.health.toString(), {
-        //             font: '16px Arial', fill: '#000'
-        //         });
-        //         treeHealthTexts.push(healthText);
-        //     }
-        // }
-
-        // function plantSeed(pointer) {
-        //     const x = pointer.x;
-        //     const y = pointer.y;
-        //
-        //     if (seeds > 0 && pointer.button === 0) {
-        //         const seed = this.add.image(x, y, 'seed').setInteractive();
-        //         seed.on('pointerdown', pickUpSeed);
-        //         seed.growthTime = 5000; // время, через которое семя превратится в дерево (5 секунд)
-        //         seedSprites.push(seed);
-        //         seeds--;
-        //
-        //         this.time.delayedCall(seed.growthTime, growSeedIntoTree, [seed, this]);
-        //     }
-        // }
-
         function plantSeed(pointer) {
             const x = pointer.x;
             const y = pointer.y;
 
             if (seeds > 0 && pointer.button === 0) {
                 const seed = this.add.image(x, y, 'seed').setInteractive();
-                seed.on('pointerdown', pickUpSeed);
+                seed.on('pointerdown', function(event) {
+                    if (event.button === 2) { // правая кнопка мыши
+                        // Добавляем анимацию полива семени
+                        const drop = this.scene.add.image(seed.x, seed.y - 30, 'water');
+                        this.scene.tweens.add({
+                            targets: drop,
+                            y: seed.y,
+                            alpha: 0,
+                            duration: 500,
+                            onComplete: function() {
+                                drop.destroy();
+                            }
+                        });
+
+                        growSeedIntoTree.call(this, seed, this.scene);
+                    } else {
+                        pickUpSeed.call(this, event, seed);
+                    }
+                });
                 seed.growthTime = 3000;
                 seedSprites.push(seed);
                 seeds--;
-
-                this.time.delayedCall(seed.growthTime, growSeedIntoTree, [seed, this]);
             }
         }
 
-        // function growSeedIntoTree(seed, context) {
-        //     const x = seed.x;
-        //     const y = seed.y;
-        //     seed.destroy();
-        //     const tree = context.add.image(x, y, 'tree');
-        //     tree.setInteractive();
-        //     tree.on('pointerdown', function(event) {
-        //         waterTree.call(tree, event); // send tree as context
-        //     });
-        //     tree.health = 100;
-        //     trees.push(tree);
-        //
-        //     const healthText = context.add.text(x, y - 20, tree.health.toString(), {
-        //         font: '16px Arial', fill: '#000'
-        //     });
-        //     treeHealthTexts.push(healthText);
-        // }
-
         function growSeedIntoTree(seed, context) {
+            console.log("growSeedIntoTree");
             const x = seed.x;
             const y = seed.y;
             seed.destroy();
@@ -253,22 +209,6 @@ export default function Game() {
                 this.setScale(newScale);
             }
         }
-
-        // function waterTree(event) {
-        //     const tree = this;
-        //     if (event.button === 2 && tree.health < 100) {
-        //         tree.health += 10;
-        //         if (tree.health > 100) {
-        //             tree.health = 100;
-        //         }
-        //         const index = trees.indexOf(tree);
-        //         treeHealthTexts[index].setText(tree.health.toString());
-        //
-        //         // Устанавливаем масштаб дерева в зависимости от его здоровья
-        //         const scale = 0.1 + 0.9 * (tree.health / 100);
-        //         tree.setScale(scale);
-        //     }
-        // }
 
         function degradeTreesAndAir() {
             let removed = false;
