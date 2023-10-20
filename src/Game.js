@@ -30,7 +30,7 @@ export default function Game() {
         let gameOverText;
 
         function preload() {
-            this.load.image('background', '/images/background.webp');
+            this.load.image('background', '/images/background.jpeg');
             this.load.image('tree', '/images/tree.png');
             this.load.image('seed', '/images/seed.png');
             this.load.image('water', '/images/water.png');
