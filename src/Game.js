@@ -167,7 +167,7 @@ export default function Game() {
             trees.push(tree);
 
             const healthText = context.add.text(x, y - 20, tree.health.toString(), {
-                font: '16px Arial', fill: '#000'
+                font: '16px Arial', fill: '#fff'
             });
             treeHealthTexts.push(healthText);
 
