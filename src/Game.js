@@ -45,8 +45,8 @@ export default function Game() {
             background.setScale(scale).setScrollFactor(0);
 
             // add counters text
-            seedText = this.add.text(10, 10, '', { font: '16px Arial', fill: '#000' });
-            airQualityText = this.add.text(10, 30, '', { font: '16px Arial', fill: '#000' });
+            seedText = this.add.text(10, 10, '', { font: '16px Arial', fill: '#fff' });
+            airQualityText = this.add.text(10, 30, '', { font: '16px Arial', fill: '#fff' });
 
             // this.input.on('pointerdown', plantTree, this);
 
