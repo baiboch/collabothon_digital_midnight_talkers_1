@@ -20,16 +20,23 @@ const IndexPresentation = ({ state, setState }) => {
     }, [])
 
     return (
-        <article className={"indexPresentation"}>
-            <h1>Urban Harvesting</h1>
+        <main>
+            <article className={"indexPresentation"}>
+                <h1>Urban Harvesting</h1>
 
-            <form onSubmit={handleSubmit}>
-                <input name="seeds" value={formData.seeds || ""} onChange={(e) => setFormData({...formData, seeds: e.target.value })} />
+                <form onSubmit={handleSubmit}>
+                    
+                    <p>
+                        Enter number of seeds
+                    </p>
 
-                <button type="submit">Continue</button>
-            </form>
+                    <input autoComplete="off" name="seeds" value={formData.seeds || ""} onChange={(e) => setFormData({...formData, seeds: e.target.value })} />
 
-        </article>
+                    <button type="submit">Start</button>
+                </form>
+
+            </article>
+        </main>
     );
 }
 export default IndexPresentation;

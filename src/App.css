@@ -53,3 +53,23 @@ main {
   margin-top: 92px;
   margin-inline: auto;
 }
+
+.indexPresentation p {
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+h1 {
+  font-family: 900;
+}
+
+form {
+  padding: 32px;
+  background-color: #ccc;
+  border-radius: 23px;
+}
+
+input,
+button {
+  padding: 5.5px;
+}
