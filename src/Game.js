@@ -2,9 +2,24 @@ import React, { useEffect } from 'react';
 import Phaser from 'phaser';
 
 export default function Game() {
+
+    const INITIAL_SEEDS_NUMBER = 1;
+    const INDICATOR_TEXT_COLOR = '#FFFFFF';
+    const GAME_OVER_TEXT_COLOR = '#FF0000';
+    const FONT_SIZE_AND_FAMILY = '16px Arial';
+    const GAME_OVER_TEXT_SIZE = '32px Arial';
+
     useEffect(() => {
-        window.addEventListener('resize', handleResize);
-        document.body.addEventListener('contextmenu', preventContextMenu);
+        let seeds = INITIAL_SEEDS_NUMBER;
+        let trees = [];
+        let seedSprites = [];
+        let airQuality = 0;
+
+        let treeHealthTexts = [];
+        let seedText;
+        let airQualityText;
+        let gameOverText;
+        let music;
 
         const config = {
             type: Phaser.AUTO,
@@ -16,27 +31,23 @@ export default function Game() {
                 update: update,
             },
         };
-
         const game = new Phaser.Game(config);
 
-        let seeds = 10;
-        let trees = [];
-        let seedSprites = [];
-        let airQuality = 0;
-
-        let treeHealthTexts = [];
-        let seedText;
-        let airQualityText;
-        let gameOverText;
-
         function preload() {
-            this.load.image('background', '/images/background.webp');
+            // images
+            this.load.image('background', '/images/background.jpeg');
             this.load.image('tree', '/images/tree.png');
             this.load.image('seed', '/images/seed.png');
             this.load.image('water', '/images/water.png');
+            this.load.image('factory', '/images/factory.webp');
+            // audio
+            this.load.audio('music', '/music/sound.mp3');
         }
 
         function create() {
+            // add music
+            music = this.sound.add('music', { volume: 0.5, loop: true });
+            music.play();
             // add background
             const background = this.add.image(0, 0, 'background').setOrigin(0, 0);
             const scaleX = game.config.width / background.width;
@@ -45,15 +56,16 @@ export default function Game() {
             background.setScale(scale).setScrollFactor(0);
 
             // add counters text
-            seedText = this.add.text(10, 10, '', { font: '16px Arial', fill: '#000' });
-            airQualityText = this.add.text(10, 30, '', { font: '16px Arial', fill: '#000' });
+            seedText = this.add.text(10, 10, '', { font: FONT_SIZE_AND_FAMILY, fill: INDICATOR_TEXT_COLOR });
+            airQualityText = this.add.text(10, 30, '', { font: FONT_SIZE_AND_FAMILY, fill: INDICATOR_TEXT_COLOR });
 
-            this.input.on('pointerdown', plantTree, this);
+            scheduleFactory(this);
+
+            this.input.on('pointerdown', plantSeed, this);
             this.input.on('gameobjectdown', pickUpSeed, this);
 
-            // seeds
             this.time.addEvent({
-                delay: 5000, // 5 seconds
+                delay: 1000, // 5 seconds
                 callback: generateSeedsFromTrees,
                 callbackScope: this,
                 loop: true
@@ -61,7 +73,7 @@ export default function Game() {
 
             // air quality
             this.time.addEvent({
-                delay: 7000,  // 7 seconds
+                delay: 7000,
                 callback: improveAirQuality,
                 callbackScope: this,
                 loop: true
@@ -77,28 +89,18 @@ export default function Game() {
 
             // game over part
             gameOverText = this.add.text(game.config.width / 2, game.config.height / 2, 'Game Over', {
-                font: '32px Arial',
-                fill: '#FF0000'
+                font: GAME_OVER_TEXT_SIZE,
+                fill: GAME_OVER_TEXT_COLOR,
             }).setOrigin(0.5, 0.5);
             gameOverText.visible = false;
         }
 
-        function pickUpSeed(pointer, seedSprite) {
-            if (pointer.button === 0) { // left mouse click
-                seeds++;
-                seedSprite.destroy(); // delete seed
-                const index = seedSprites.indexOf(seedSprite);
-                if (index > -1) {
-                    seedSprites.splice(index, 1); // delete from seeds array
-                }
-            }
-        }
-
         function generateSeedsFromTrees() {
-            // generate seeds from all trees
             trees.forEach(tree => {
-                if (tree) {
+                if (tree && !tree.hasGeneratedSeed) {
                     airQuality++;  // increase air quality
+                    tree.hasGeneratedSeed = true;
+
                     const x = Math.random() * game.config.width;
                     const y = Math.random() * game.config.height;
                     const seedSprite = this.add.image(x, y, 'seed').setInteractive();
@@ -107,49 +109,100 @@ export default function Game() {
             });
         }
 
+        function pickUpSeed(pointer, seedSprite) {
+
+            if (seedSprite.texture.key !== 'seed') {
+                return;
+            }
+            if (pointer.button === 0) {
+                seeds++;
+                seedSprite.destroy();
+                const index = seedSprites.indexOf(seedSprite);
+                if (index > -1) {
+                    seedSprites.splice(index, 1);
+                }
+            }
+        }
+
         function improveAirQuality() {
             // air quality increase
             airQuality += trees.length;
         }
 
         function update() {
-            // update counters
             seedText.setText('Seeds: ' + seeds);
             airQualityText.setText('Air quality: ' + airQuality);
         }
 
-        function plantTree(pointer) {
-            console.log('plantTree', pointer.button);
+        function plantSeed(pointer) {
             const x = pointer.x;
             const y = pointer.y;
-            const seedsNeeded = 10;
 
-            if (seeds >= seedsNeeded && pointer.button === 0) {
-                const tree = this.add.image(x, y, 'tree');
-                tree.setInteractive();
-                tree.on('pointerdown', function(event) {
-                    waterTree.call(tree, event); // send tree as context
+            if (seeds > 0 && pointer.button === 0) {
+                const seed = this.add.image(x, y, 'seed').setInteractive();
+                seed.on('pointerdown', function(event) {
+                    if (event.button === 2) {
+                        const drop = this.scene.add.image(seed.x, seed.y - 30, 'water');
+                        this.scene.tweens.add({
+                            targets: drop,
+                            y: seed.y,
+                            alpha: 0,
+                            duration: 500,
+                            onComplete: function() {
+                                drop.destroy();
+                            }
+                        });
+                        growSeedIntoTree.call(this, seed, this.scene);
+                    } else {
+                        pickUpSeed.call(this, event, seed);
+                    }
                 });
-                tree.health = 100;
-                trees.push(tree);
-                seeds -= seedsNeeded;
-
-                for (let i = 0; i < seedsNeeded && seedSprites.length > 0; i++) {
-                    const seedSprite = seedSprites.pop();
-                    seedSprite.destroy();
-                }
-
-                const healthText = this.add.text(x, y - 20, tree.health.toString(), {
-                    font: '16px Arial', fill: '#000'
-                });
-                treeHealthTexts.push(healthText);
+                seed.growthTime = 5000;
+                seedSprites.push(seed);
+                seeds--;
             }
+        }
+
+        function growSeedIntoTree(seed, context) {
+            console.log("growSeedIntoTree");
+            const x = seed.x;
+            const y = seed.y;
+            seed.destroy();
+            const tree = context.add.image(x, y, 'tree');
+            tree.setInteractive();
+            tree.setScale(0.1); // initial tree size
+
+            tree.health = 1;
+            tree.hasGeneratedSeed = false;
+
+            tree.on('pointerdown', function(event) {
+                waterTree.call(tree, event); // send tree as context
+            });
+            trees.push(tree);
+
+            const healthText = context.add.text(x, y - 20, tree.health.toString(), {
+                font: INDICATOR_TEXT_COLOR, fill: '#fff'
+            });
+            treeHealthTexts.push(healthText);
+            context.tweens.add({
+                targets: tree,
+                scaleX: 2,
+                scaleY: 2,
+                duration: seed.growthTime,
+                ease: 'Linear',
+                onUpdate: function(tween, targets) {
+                    if (tree.health < 100) {
+                        tree.health += 1;
+                        const index = trees.indexOf(tree);
+                        treeHealthTexts[index].setText(Math.round(tree.health).toString());
+                    }
+                }
+            });
         }
 
         function waterTree(pointer) {
             console.log(pointer.button, 'waterTree');
-            if (pointer.button === 2) {  // right mouse click
-
+            if (pointer.button === 2) {
                 const drop = this.scene.add.image(this.x, this.y - 30, 'water');
                 this.scene.tweens.add({
                     targets: drop,
@@ -161,15 +214,16 @@ export default function Game() {
                     }
                 });
 
-                this.health += 20;  // increase tree health
+                this.health += 20;
                 if (this.health > 100) {
-                    this.health = 100;  // set max 100
+                    this.health = 100;
                 }
 
                 const index = trees.indexOf(this);
                 treeHealthTexts[index].setText(this.health.toString());
 
                 const newScale = 1 + (this.health * 0.01);
+                console.log(newScale, "newScale")
                 this.setScale(newScale);
             }
         }
@@ -186,7 +240,7 @@ export default function Game() {
                     treeHealthTexts[i].destroy();
                     treeHealthTexts.splice(i, 1);
 
-                    tree.destroy();  // remove tree
+                    tree.destroy();
                     trees.splice(i, 1);
                     removed = true;
                 }
@@ -195,19 +249,68 @@ export default function Game() {
             }
 
             if (removed) {
-                airQuality -= 10;  // reduce air quality
+                airQuality -= 10;
                 if (airQuality < 0) {
                     airQuality = 0;
                 }
             }
-            if (trees.length === 0) {
+            if (trees.length === 0 || airQuality <= 0) {
+                music.stop();
+                airQuality = 0;
                 gameOverText.visible = true;
-                // stop all games cycles
+                music.stop();
                 this.scene.pause();
             }
         }
 
-        // window resize handler
+        function scheduleFactory(context) {
+            const randomTime = Math.random() * (5000 - 1000) + 10000;
+            setTimeout(() => {
+                showFactory(context);
+                scheduleFactory(context);
+            }, randomTime);
+        }
+
+        function showFactory(context) {
+            if (!context || !context.add) {
+                console.error('error showFactory');
+                return;
+            }
+
+            const screenWidth = config.width;
+            const screenHeight = config.height;
+
+            const factory = context.add.image(0, 0, 'factory');
+            const factoryWidth = factory.width;
+            const factoryHeight = factory.height;
+
+            factory.setX(screenWidth - factoryWidth);
+            factory.setY(screenHeight - factoryHeight);
+            factory.setAlpha(0);
+
+            context.tweens.add({
+                targets: factory,
+                alpha: 1,
+                duration: 1000,
+                onComplete: () => {
+                    setTimeout(() => {
+                        factory.destroy();
+
+                        console.log(airQuality, 'before reduce air');
+
+                        let percentReduce = Math.round(airQuality * 50 / 100);
+                        console.log(percentReduce, 'air % reduce');
+
+                        airQuality -= percentReduce > 0 ? percentReduce : 0;
+                        if (airQuality < 0) {
+                            airQuality = 0;
+                        }
+                        console.log(airQuality, 'reduce air');
+                    }, 5000);
+                }
+            });
+        }
+
         function handleResize() {
             game.scale.resize(window.innerWidth, window.innerHeight);
         }
@@ -216,12 +319,14 @@ export default function Game() {
             event.preventDefault();
         }
 
+        window.addEventListener('resize', handleResize);
+        document.body.addEventListener('contextmenu', preventContextMenu);
+
         return () => {
             document.body.removeEventListener('contextmenu', preventContextMenu);
             window.removeEventListener('resize', handleResize);
             game.destroy(true);
         };
     }, []);
-
     return <div id="phaser-game"></div>;
 }
