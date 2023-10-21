@@ -21,7 +21,8 @@ const IndexPresentation = ({ state, setState }) => {
         return () => {
             setFormData({})
         }
-    }, [state, formData])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [state])
 
     return (
         <main>
