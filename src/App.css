@@ -42,10 +42,15 @@ body, html {
     transform: rotate(360deg);
   }
 }
-
+body {
+  background-color: #5E934A;
+}
 main {
   width: 100%;
   min-height: 100vh;
+}
+button {
+  background-color: #fff;
 }
 .indexPresentation {
   max-width: 720px;
@@ -58,6 +63,7 @@ main {
   display: flex;
   align-items: center;
   font-weight: 500;
+  color: #333333;
 }
 
 .indexPresentation p img {
@@ -72,14 +78,14 @@ h1 {
   display: flex;
   justify-content: center;
   align-items: center;
-  color: green;
+  color:  #fff;
   font-weight: 900;
   letter-spacing: 2px;
-  font-size: 64px;
+  font-size: 42px;
 }
 form {
   padding: 32px;
-  background-color: #ccc;
+  background-color: #FFFFFF;
   border-radius: 23px;
   display: flex;
   align-items: center;
@@ -90,4 +96,5 @@ button {
 }
 button {
   cursor: pointer;
+  padding-inline: 12px;
 }
