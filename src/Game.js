@@ -2,9 +2,17 @@ import React, { useEffect } from 'react';
 import Phaser from 'phaser';
 
 export default function Game() {
+
     useEffect(() => {
-        window.addEventListener('resize', handleResize);
-        document.body.addEventListener('contextmenu', preventContextMenu);
+        let seeds = 10;
+        let trees = [];
+        let seedSprites = [];
+        let airQuality = 0;
+
+        let treeHealthTexts = [];
+        let seedText;
+        let airQualityText;
+        let gameOverText;
 
         const config = {
             type: Phaser.AUTO,
@@ -16,18 +24,7 @@ export default function Game() {
                 update: update,
             },
         };
-
         const game = new Phaser.Game(config);
-
-        let seeds = 10;
-        let trees = [];
-        let seedSprites = [];
-        let airQuality = 0;
-
-        let treeHealthTexts = [];
-        let seedText;
-        let airQualityText;
-        let gameOverText;
 
         function preload() {
             this.load.image('background', '/images/background.jpeg');
@@ -48,19 +45,16 @@ export default function Game() {
             seedText = this.add.text(10, 10, '', { font: '16px Arial', fill: '#fff' });
             airQualityText = this.add.text(10, 30, '', { font: '16px Arial', fill: '#fff' });
 
-            // this.input.on('pointerdown', plantTree, this);
-
             this.input.on('pointerdown', plantSeed, this);
-
             this.input.on('gameobjectdown', pickUpSeed, this);
 
-            // seeds
-            this.time.addEvent({
-                delay: 5000, // 5 seconds
-                callback: generateSeedsFromTrees,
-                callbackScope: this,
-                loop: true
-            });
+            // seeds generating
+            // this.time.addEvent({
+            //     delay: 5000, // 5 seconds
+            //     callback: generateSeedsFromTrees,
+            //     callbackScope: this,
+            //     loop: true
+            // });
 
             // air quality
             this.time.addEvent({
@@ -87,6 +81,10 @@ export default function Game() {
         }
 
         function pickUpSeed(pointer, seedSprite) {
+
+            if (seedSprite.texture.key !== 'seed') {
+                return;
+            }
             if (pointer.button === 0) { // left mouse click
                 seeds++;
                 seedSprite.destroy(); // delete seed
@@ -97,18 +95,18 @@ export default function Game() {
             }
         }
 
-        function generateSeedsFromTrees() {
-            // generate seeds from all trees
-            trees.forEach(tree => {
-                if (tree) {
-                    airQuality++;  // increase air quality
-                    const x = Math.random() * game.config.width;
-                    const y = Math.random() * game.config.height;
-                    const seedSprite = this.add.image(x, y, 'seed').setInteractive();
-                    seedSprites.push(seedSprite);
-                }
-            });
-        }
+        // function generateSeedsFromTrees() {
+        //     // generate seeds from all trees
+        //     trees.forEach(tree => {
+        //         if (tree) {
+        //             airQuality++;  // increase air quality
+        //             const x = Math.random() * game.config.width;
+        //             const y = Math.random() * game.config.height;
+        //             const seedSprite = this.add.image(x, y, 'seed').setInteractive();
+        //             seedSprites.push(seedSprite);
+        //         }
+        //     });
+        // }
 
         function improveAirQuality() {
             // air quality increase
@@ -251,6 +249,9 @@ export default function Game() {
         function preventContextMenu(event) {
             event.preventDefault();
         }
+
+        window.addEventListener('resize', handleResize);
+        document.body.addEventListener('contextmenu', preventContextMenu);
 
         return () => {
             document.body.removeEventListener('contextmenu', preventContextMenu);
