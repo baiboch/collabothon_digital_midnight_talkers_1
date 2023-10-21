@@ -3,8 +3,14 @@ import Phaser from 'phaser';
 
 export default function Game() {
 
+    const INITIAL_SEEDS_NUMBER = 10;
+    const INDICATOR_TEXT_COLOR = '#FFFFFF';
+    const GAME_OVER_TEXT_COLOR = '#FF0000';
+    const FONT_SIZE_AND_FAMILY = '16px Arial';
+    const GAME_OVER_TEXT_SIZE = '32px Arial';
+
     useEffect(() => {
-        let seeds = 10;
+        let seeds = INITIAL_SEEDS_NUMBER;
         let trees = [];
         let seedSprites = [];
         let airQuality = 0;
@@ -42,19 +48,11 @@ export default function Game() {
             background.setScale(scale).setScrollFactor(0);
 
             // add counters text
-            seedText = this.add.text(10, 10, '', { font: '16px Arial', fill: '#fff' });
-            airQualityText = this.add.text(10, 30, '', { font: '16px Arial', fill: '#fff' });
+            seedText = this.add.text(10, 10, '', { font: FONT_SIZE_AND_FAMILY, fill: INDICATOR_TEXT_COLOR });
+            airQualityText = this.add.text(10, 30, '', { font: FONT_SIZE_AND_FAMILY, fill: INDICATOR_TEXT_COLOR });
 
             this.input.on('pointerdown', plantSeed, this);
             this.input.on('gameobjectdown', pickUpSeed, this);
-
-            // seeds generating
-            // this.time.addEvent({
-            //     delay: 5000, // 5 seconds
-            //     callback: generateSeedsFromTrees,
-            //     callbackScope: this,
-            //     loop: true
-            // });
 
             // air quality
             this.time.addEvent({
@@ -74,8 +72,8 @@ export default function Game() {
 
             // game over part
             gameOverText = this.add.text(game.config.width / 2, game.config.height / 2, 'Game Over', {
-                font: '32px Arial',
-                fill: '#FF0000'
+                font: GAME_OVER_TEXT_SIZE,
+                fill: GAME_OVER_TEXT_COLOR,
             }).setOrigin(0.5, 0.5);
             gameOverText.visible = false;
         }
@@ -94,19 +92,6 @@ export default function Game() {
                 }
             }
         }
-
-        // function generateSeedsFromTrees() {
-        //     // generate seeds from all trees
-        //     trees.forEach(tree => {
-        //         if (tree) {
-        //             airQuality++;  // increase air quality
-        //             const x = Math.random() * game.config.width;
-        //             const y = Math.random() * game.config.height;
-        //             const seedSprite = this.add.image(x, y, 'seed').setInteractive();
-        //             seedSprites.push(seedSprite);
-        //         }
-        //     });
-        // }
 
         function improveAirQuality() {
             // air quality increase
@@ -165,7 +150,7 @@ export default function Game() {
             trees.push(tree);
 
             const healthText = context.add.text(x, y - 20, tree.health.toString(), {
-                font: '16px Arial', fill: '#fff'
+                font: INDICATOR_TEXT_COLOR, fill: '#fff'
             });
             treeHealthTexts.push(healthText);
 
