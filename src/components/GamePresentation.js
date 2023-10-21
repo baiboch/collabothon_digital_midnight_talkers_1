@@ -20,6 +20,7 @@ export default function Game({ state }) {
         let seedText;
         let airQualityText;
         let gameOverText;
+        let music;
 
         const config = {
             type: Phaser.AUTO,
@@ -34,14 +35,20 @@ export default function Game({ state }) {
         const game = new Phaser.Game(config);
 
         function preload() {
+            // images
             this.load.image('background', '/images/background.jpeg');
             this.load.image('tree', '/images/tree.png');
             this.load.image('seed', '/images/seed.png');
             this.load.image('water', '/images/water.png');
             this.load.image('factory', '/images/factory.webp');
+            // audio
+            this.load.audio('music', '/music/sound.mp3');
         }
 
         function create() {
+            // add music
+            music = this.sound.add('music', { volume: 0.5, loop: true });
+            music.play();
             // add background
             const background = this.add.image(0, 0, 'background').setOrigin(0, 0);
             const scaleX = game.config.width / background.width;
@@ -249,6 +256,7 @@ export default function Game({ state }) {
                 }
             }
             if (trees.length === 0 || airQuality <= 0) {
+                music.stop();
                 airQuality = 0;
 
                 gameOverText.visible = true;
@@ -258,6 +266,7 @@ export default function Game({ state }) {
                     treeHealthTexts[i].destroy();
                 }
                 trees = []
+                music.stop();
                 this.scene.pause();
             }
         }
