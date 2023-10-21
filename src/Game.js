@@ -36,7 +36,7 @@ export default function Game() {
             this.load.image('background', '/images/background.jpeg');
             this.load.image('tree', '/images/tree.png');
             this.load.image('seed', '/images/seed.png');
-            this.load.image('water', '/images/water.png');
+            this.load.image('water', '/images/water2.png');
         }
 
         function create() {
@@ -129,7 +129,7 @@ export default function Game() {
                         pickUpSeed.call(this, event, seed);
                     }
                 });
-                seed.growthTime = 3000;
+                seed.growthTime = 5000;
                 seedSprites.push(seed);
                 seeds--;
             }
@@ -143,10 +143,12 @@ export default function Game() {
             const tree = context.add.image(x, y, 'tree');
             tree.setInteractive();
             tree.setScale(0.1); // initial tree size
+
+            tree.health = 1;
+
             tree.on('pointerdown', function(event) {
                 waterTree.call(tree, event); // send tree as context
             });
-            tree.health = 100;
             trees.push(tree);
 
             const healthText = context.add.text(x, y - 20, tree.health.toString(), {
@@ -160,7 +162,14 @@ export default function Game() {
                 scaleX: 2,
                 scaleY: 2,
                 duration: seed.growthTime, // grow tree time
-                ease: 'Linear'
+                ease: 'Linear',
+                onUpdate: function(tween, targets) {
+                    if (tree.health < 100) {
+                        tree.health += 1;
+                        const index = trees.indexOf(tree);
+                        treeHealthTexts[index].setText(Math.round(tree.health).toString());
+                    }
+                }
             });
         }
 
