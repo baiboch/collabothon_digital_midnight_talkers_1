@@ -22,13 +22,15 @@ const IndexPresentation = ({ state, setState }) => {
     return (
         <main>
             <article className={"indexPresentation"}>
-                <h1>Urban Harvesting</h1>
+                <h1>
+                    <span>
+                        Urban Harvesting
+                    </span>
+                </h1>
 
                 <form onSubmit={handleSubmit}>
                     
-                    <p>
-                        Enter number of seeds
-                    </p>
+                    <p>Enter number of seeds</p>
 
                     <input autoComplete="off" name="seeds" value={formData.seeds || ""} onChange={(e) => setFormData({...formData, seeds: e.target.value })} />
 
