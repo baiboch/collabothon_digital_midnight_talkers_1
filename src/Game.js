@@ -3,7 +3,7 @@ import Phaser from 'phaser';
 
 export default function Game() {
 
-    const INITIAL_SEEDS_NUMBER = 10;
+    const INITIAL_SEEDS_NUMBER = 1;
     const INDICATOR_TEXT_COLOR = '#FFFFFF';
     const GAME_OVER_TEXT_COLOR = '#FF0000';
     const FONT_SIZE_AND_FAMILY = '16px Arial';
@@ -37,6 +37,7 @@ export default function Game() {
             this.load.image('tree', '/images/tree.png');
             this.load.image('seed', '/images/seed.png');
             this.load.image('water', '/images/water2.png');
+            this.load.image('factory', '/images/factory.webp');
         }
 
         function create() {
@@ -53,6 +54,13 @@ export default function Game() {
 
             this.input.on('pointerdown', plantSeed, this);
             this.input.on('gameobjectdown', pickUpSeed, this);
+
+            this.time.addEvent({
+                delay: 1000, // 5 seconds
+                callback: generateSeedsFromTrees,
+                callbackScope: this,
+                loop: true
+            });
 
             // air quality
             this.time.addEvent({
@@ -76,6 +84,20 @@ export default function Game() {
                 fill: GAME_OVER_TEXT_COLOR,
             }).setOrigin(0.5, 0.5);
             gameOverText.visible = false;
+        }
+
+        function generateSeedsFromTrees() {
+            trees.forEach(tree => {
+                if (tree && !tree.hasGeneratedSeed) {
+                    airQuality++;  // increase air quality
+                    tree.hasGeneratedSeed = true;
+
+                    const x = Math.random() * game.config.width;
+                    const y = Math.random() * game.config.height;
+                    const seedSprite = this.add.image(x, y, 'seed').setInteractive();
+                    seedSprites.push(seedSprite);
+                }
+            });
         }
 
         function pickUpSeed(pointer, seedSprite) {
@@ -145,6 +167,7 @@ export default function Game() {
             tree.setScale(0.1); // initial tree size
 
             tree.health = 1;
+            tree.hasGeneratedSeed = false;
 
             tree.on('pointerdown', function(event) {
                 waterTree.call(tree, event); // send tree as context
@@ -228,7 +251,8 @@ export default function Game() {
                     airQuality = 0;
                 }
             }
-            if (trees.length === 0) {
+            if (trees.length === 0 || airQuality <= 0) {
+                airQuality = 0;
                 gameOverText.visible = true;
                 // stop all games cycles
                 this.scene.pause();
