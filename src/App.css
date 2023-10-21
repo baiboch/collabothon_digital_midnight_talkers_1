@@ -55,6 +55,15 @@ main {
 .indexPresentation p {
   margin: 0;
   width: 420px;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+}
+
+.indexPresentation p img {
+  width: 24px;
+  margin-right: 12px;
+  margin-top: 2.5px;
 }
 h1 {
   font-family: 900;
@@ -63,6 +72,10 @@ h1 {
   display: flex;
   justify-content: center;
   align-items: center;
+  color: green;
+  font-weight: 900;
+  letter-spacing: 2px;
+  font-size: 64px;
 }
 form {
   padding: 32px;
