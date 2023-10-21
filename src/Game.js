@@ -36,7 +36,7 @@ export default function Game() {
             this.load.image('background', '/images/background.jpeg');
             this.load.image('tree', '/images/tree.png');
             this.load.image('seed', '/images/seed.png');
-            this.load.image('water', '/images/water2.png');
+            this.load.image('water', '/images/water.png');
             this.load.image('factory', '/images/factory.webp');
         }
 
@@ -52,6 +52,8 @@ export default function Game() {
             seedText = this.add.text(10, 10, '', { font: FONT_SIZE_AND_FAMILY, fill: INDICATOR_TEXT_COLOR });
             airQualityText = this.add.text(10, 30, '', { font: FONT_SIZE_AND_FAMILY, fill: INDICATOR_TEXT_COLOR });
 
+            scheduleFactory(this);
+
             this.input.on('pointerdown', plantSeed, this);
             this.input.on('gameobjectdown', pickUpSeed, this);
 
@@ -64,7 +66,7 @@ export default function Game() {
 
             // air quality
             this.time.addEvent({
-                delay: 7000,  // 7 seconds
+                delay: 7000,
                 callback: improveAirQuality,
                 callbackScope: this,
                 loop: true
@@ -105,12 +107,12 @@ export default function Game() {
             if (seedSprite.texture.key !== 'seed') {
                 return;
             }
-            if (pointer.button === 0) { // left mouse click
+            if (pointer.button === 0) {
                 seeds++;
-                seedSprite.destroy(); // delete seed
+                seedSprite.destroy();
                 const index = seedSprites.indexOf(seedSprite);
                 if (index > -1) {
-                    seedSprites.splice(index, 1); // delete from seeds array
+                    seedSprites.splice(index, 1);
                 }
             }
         }
@@ -121,7 +123,6 @@ export default function Game() {
         }
 
         function update() {
-            // update counters
             seedText.setText('Seeds: ' + seeds);
             airQualityText.setText('Air quality: ' + airQuality);
         }
@@ -133,8 +134,7 @@ export default function Game() {
             if (seeds > 0 && pointer.button === 0) {
                 const seed = this.add.image(x, y, 'seed').setInteractive();
                 seed.on('pointerdown', function(event) {
-                    if (event.button === 2) { // правая кнопка мыши
-                        // Добавляем анимацию полива семени
+                    if (event.button === 2) {
                         const drop = this.scene.add.image(seed.x, seed.y - 30, 'water');
                         this.scene.tweens.add({
                             targets: drop,
@@ -145,7 +145,6 @@ export default function Game() {
                                 drop.destroy();
                             }
                         });
-
                         growSeedIntoTree.call(this, seed, this.scene);
                     } else {
                         pickUpSeed.call(this, event, seed);
@@ -178,13 +177,11 @@ export default function Game() {
                 font: INDICATOR_TEXT_COLOR, fill: '#fff'
             });
             treeHealthTexts.push(healthText);
-
-            // animate tree grow
             context.tweens.add({
                 targets: tree,
                 scaleX: 2,
                 scaleY: 2,
-                duration: seed.growthTime, // grow tree time
+                duration: seed.growthTime,
                 ease: 'Linear',
                 onUpdate: function(tween, targets) {
                     if (tree.health < 100) {
@@ -198,8 +195,7 @@ export default function Game() {
 
         function waterTree(pointer) {
             console.log(pointer.button, 'waterTree');
-            if (pointer.button === 2) {  // right mouse click
-
+            if (pointer.button === 2) {
                 const drop = this.scene.add.image(this.x, this.y - 30, 'water');
                 this.scene.tweens.add({
                     targets: drop,
@@ -211,9 +207,9 @@ export default function Game() {
                     }
                 });
 
-                this.health += 20;  // increase tree health
+                this.health += 20;
                 if (this.health > 100) {
-                    this.health = 100;  // set max 100
+                    this.health = 100;
                 }
 
                 const index = trees.indexOf(this);
@@ -237,7 +233,7 @@ export default function Game() {
                     treeHealthTexts[i].destroy();
                     treeHealthTexts.splice(i, 1);
 
-                    tree.destroy();  // remove tree
+                    tree.destroy();
                     trees.splice(i, 1);
                     removed = true;
                 }
@@ -246,7 +242,7 @@ export default function Game() {
             }
 
             if (removed) {
-                airQuality -= 10;  // reduce air quality
+                airQuality -= 10;
                 if (airQuality < 0) {
                     airQuality = 0;
                 }
@@ -254,12 +250,58 @@ export default function Game() {
             if (trees.length === 0 || airQuality <= 0) {
                 airQuality = 0;
                 gameOverText.visible = true;
-                // stop all games cycles
                 this.scene.pause();
             }
         }
 
-        // window resize handler
+        function scheduleFactory(context) {
+            const randomTime = Math.random() * (5000 - 1000) + 10000;
+            setTimeout(() => {
+                showFactory(context);
+                scheduleFactory(context);
+            }, randomTime);
+        }
+
+        function showFactory(context) {
+            if (!context || !context.add) {
+                console.error('error showFactory');
+                return;
+            }
+
+            const screenWidth = config.width;
+            const screenHeight = config.height;
+
+            const factory = context.add.image(0, 0, 'factory');
+            const factoryWidth = factory.width;
+            const factoryHeight = factory.height;
+
+            factory.setX(screenWidth - factoryWidth);
+            factory.setY(screenHeight - factoryHeight);
+            factory.setAlpha(0);
+
+            context.tweens.add({
+                targets: factory,
+                alpha: 1,
+                duration: 1000,
+                onComplete: () => {
+                    setTimeout(() => {
+                        factory.destroy();
+
+                        console.log(airQuality, 'before reduce air');
+
+                        let percentReduce = Math.round(airQuality * 50 / 100);
+                        console.log(percentReduce, 'air % reduce');
+
+                        airQuality -= percentReduce > 0 ? percentReduce : 0;
+                        if (airQuality < 0) {
+                            airQuality = 0;
+                        }
+                        console.log(airQuality, 'reduce air');
+                    }, 5000);
+                }
+            });
+        }
+
         function handleResize() {
             game.scale.resize(window.innerWidth, window.innerHeight);
         }
@@ -277,6 +319,5 @@ export default function Game() {
             game.destroy(true);
         };
     }, []);
-
     return <div id="phaser-game"></div>;
 }
