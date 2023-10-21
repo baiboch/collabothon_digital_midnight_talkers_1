@@ -75,3 +75,6 @@ input,
 button {
   padding: 5.5px;
 }
+button {
+  cursor: pointer;
+}
