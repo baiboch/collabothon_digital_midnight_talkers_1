@@ -42,3 +42,36 @@ body, html {
     transform: rotate(360deg);
   }
 }
+
+main {
+  width: 100%;
+  min-height: 100vh;
+}
+.indexPresentation {
+  max-width: 720px;
+  margin-top: 92px;
+  margin-inline: auto;
+}
+.indexPresentation p {
+  margin: 0;
+  width: 420px;
+}
+h1 {
+  font-family: 900;
+  margin-bottom: 64px;
+  height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+form {
+  padding: 32px;
+  background-color: #ccc;
+  border-radius: 23px;
+  display: flex;
+  align-items: center;
+}
+input,
+button {
+  padding: 5.5px;
+}

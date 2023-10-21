@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
+
 import Phaser from 'phaser';
 
-export default function Game() {
+export default function Game({ state }) {
 
-    const INITIAL_SEEDS_NUMBER = 1;
+    const INITIAL_SEEDS_NUMBER = state.seeds;
     const INDICATOR_TEXT_COLOR = '#FFFFFF';
     const GAME_OVER_TEXT_COLOR = '#FF0000';
     const FONT_SIZE_AND_FAMILY = '16px Arial';
@@ -257,7 +258,14 @@ export default function Game() {
             if (trees.length === 0 || airQuality <= 0) {
                 music.stop();
                 airQuality = 0;
+
                 gameOverText.visible = true;
+
+                for (let i = trees.length - 1; i >= 0; i--) {
+                    trees[i].destroy();
+                    treeHealthTexts[i].destroy();
+                }
+                trees = []
                 music.stop();
                 this.scene.pause();
             }
@@ -327,6 +335,7 @@ export default function Game() {
             window.removeEventListener('resize', handleResize);
             game.destroy(true);
         };
-    }, []);
+    }, [state]);
+
     return <div id="phaser-game"></div>;
 }
