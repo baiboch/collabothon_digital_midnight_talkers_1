@@ -1,13 +1,11 @@
-// import logo from './logo.svg';
 import './App.css';
-import Game from "./Game";
+import PageProvider from './components/PageProvider';
 
 function App() {
   return (
-    <div className="App">
-        <Game/>
-    </div>
+    <main>
+      <PageProvider />
+    </main>
   );
 }
-
 export default App;

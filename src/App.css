@@ -42,3 +42,14 @@ body, html {
     transform: rotate(360deg);
   }
 }
+
+main {
+  width: 100%;
+  min-height: 100vh;
+}
+
+.indexPresentation {
+  max-width: 720px;
+  margin-top: 92px;
+  margin-inline: auto;
+}

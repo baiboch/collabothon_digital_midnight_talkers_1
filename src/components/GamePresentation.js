@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
+
 import Phaser from 'phaser';
 
-export default function Game() {
+export default function GamePresentation({ state, setState }) {
     useEffect(() => {
         window.addEventListener('resize', handleResize);
         document.body.addEventListener('contextmenu', preventContextMenu);
@@ -18,8 +19,8 @@ export default function Game() {
         };
 
         const game = new Phaser.Game(config);
-
-        let seeds = 10;
+        console.log(state.seeds)
+        let seeds = state.seeds;
         let trees = [];
         let seedSprites = [];
         let airQuality = 0;
@@ -221,7 +222,7 @@ export default function Game() {
             window.removeEventListener('resize', handleResize);
             game.destroy(true);
         };
-    }, []);
+    }, [state]);
 
     return <div id="phaser-game"></div>;
 }
