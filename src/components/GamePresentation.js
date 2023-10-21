@@ -4,14 +4,13 @@ import Phaser from 'phaser';
 
 export default function Game({ state }) {
 
-    const INITIAL_SEEDS_NUMBER = state.seeds;
     const INDICATOR_TEXT_COLOR = '#FFFFFF';
     const GAME_OVER_TEXT_COLOR = '#FF0000';
     const FONT_SIZE_AND_FAMILY = '16px Arial';
     const GAME_OVER_TEXT_SIZE = '32px Arial';
 
     useEffect(() => {
-        let seeds = INITIAL_SEEDS_NUMBER;
+        let seeds = state.seeds;
         let trees = [];
         let seedSprites = [];
         let airQuality = 0;

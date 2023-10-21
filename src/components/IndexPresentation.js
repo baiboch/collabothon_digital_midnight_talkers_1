@@ -17,7 +17,7 @@ const IndexPresentation = ({ state, setState }) => {
 
     useEffect(() => {
         setFormData({...formData, ...state})
-    }, [])
+    }, [state])
 
     return (
         <main>
