@@ -42,10 +42,15 @@ body, html {
     transform: rotate(360deg);
   }
 }
-
+body {
+  background-color: #5E934A;
+}
 main {
   width: 100%;
   min-height: 100vh;
+}
+button {
+  background-color: #fff;
 }
 .indexPresentation {
   max-width: 720px;
@@ -55,6 +60,16 @@ main {
 .indexPresentation p {
   margin: 0;
   width: 420px;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  color: #333333;
+}
+
+.indexPresentation p img {
+  width: 24px;
+  margin-right: 12px;
+  margin-top: 2.5px;
 }
 h1 {
   font-family: 900;
@@ -63,10 +78,14 @@ h1 {
   display: flex;
   justify-content: center;
   align-items: center;
+  color:  #fff;
+  font-weight: 900;
+  letter-spacing: 2px;
+  font-size: 42px;
 }
 form {
   padding: 32px;
-  background-color: #ccc;
+  background-color: #FFFFFF;
   border-radius: 23px;
   display: flex;
   align-items: center;
@@ -74,4 +93,8 @@ form {
 input,
 button {
   padding: 5.5px;
+}
+button {
+  cursor: pointer;
+  padding-inline: 12px;
 }

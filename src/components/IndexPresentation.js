@@ -17,20 +17,28 @@ const IndexPresentation = ({ state, setState }) => {
 
     useEffect(() => {
         setFormData({...formData, ...state})
-    }, [])
+
+        return () => {
+            setFormData({})
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [state])
 
     return (
         <main>
             <article className={"indexPresentation"}>
                 <h1>
                     <span>
-                        Urban Harvesting
+                        URBAN HARVESTING
                     </span>
                 </h1>
 
                 <form onSubmit={handleSubmit}>
                     
-                    <p>Enter number of seeds</p>
+                    <p>
+                        <img src={'/images/seed.png'} alt="Enter number of seeds" />
+                        Enter number of seeds
+                    </p>
 
                     <input autoComplete="off" name="seeds" value={formData.seeds || ""} onChange={(e) => setFormData({...formData, seeds: e.target.value })} />
 
